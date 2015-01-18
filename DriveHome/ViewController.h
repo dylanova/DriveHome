@@ -7,9 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "GeocodingService.h"
+#import <GoogleMaps/GoogleMaps.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <GMSMapViewDelegate> 
 
+//- (IBAction)geocode:(id)sender;
+
+//@property (strong,nonatomic) GeocodingService *gs;
 
 @end
 
