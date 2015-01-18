@@ -32,7 +32,7 @@ static NSString *kMDDirectionsURL = @"http://maps.googleapis.com/maps/api/direct
   if(waypointCount>2) {
     [url appendString:@"&waypoints=optimize:true"];
     int wpCount = waypointCount-2;
-    for(int i=1;i<wpCount;i++){
+    for(int i=1;i<=wpCount;i++){
       [url appendString: @"|"];
       [url appendString:[waypoints objectAtIndex:i]];
     }

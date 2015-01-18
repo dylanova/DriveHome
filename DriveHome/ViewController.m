@@ -21,11 +21,6 @@
 
 //@synthesize gs;
 
-//- (void)viewDidLoad {
-//    [super viewDidLoad];
-//    // Do any additional setup after loading the view, typically from a nib.
-//}
-
 - (void)loadView {
     //gs = [[GeocodingService alloc] init];
     waypoints_ = [[NSMutableArray alloc]init];
@@ -42,6 +37,8 @@
     mapView_.trafficEnabled = YES;
     self.view = mapView_;
     
+    [self calculateMopacTo290To35];
+    
     // Creates a marker in the center of the map.
     //GMSMarker *marker = [[GMSMarker alloc] init];
     //marker.position = CLLocationCoordinate2DMake(-33.86, 151.20);
@@ -50,14 +47,56 @@
     //marker.map = mapView_;
 }
 
-//- (IBAction)geocode:(id)sender {
-//    [addressField resignFirstResponder];
-//    SEL sel = @selector(addMarker);
-//    //[self performSelector:@selector(addMarker)];
-//    
-//    NSLog(@"%@",NSStringFromSelector(sel));
-//    [gs geocodeAddress:addressField.text withCallback:@selector(addMarker) withDelegate:self];
-//}
+
+
+- (void)calculateMopacTo290To35
+{
+    GMSMarker *marker = [GMSMarker markerWithPosition:jollyville];
+    marker.map = mapView_;
+    [waypoints_ addObject:marker];
+    NSString *positionString = [[NSString alloc] initWithFormat:@"%f,%f",
+                                jollyville.latitude,jollyville.longitude];
+    [waypointStrings_ addObject:positionString];
+    
+    marker = [GMSMarker markerWithPosition:Mand360];
+    marker.map = mapView_;
+    [waypoints_ addObject:marker];
+    positionString = [[NSString alloc] initWithFormat:@"%f,%f",
+                                Mand360.latitude,Mand360.longitude];
+    [waypointStrings_ addObject:positionString];
+    
+    marker = [GMSMarker markerWithPosition:BWand35];
+    marker.map = mapView_;
+    [waypoints_ addObject:marker];
+    positionString = [[NSString alloc] initWithFormat:@"%f,%f",
+                                BWand35.latitude,BWand35.longitude];
+    [waypointStrings_ addObject:positionString];
+    
+    marker = [GMSMarker markerWithPosition:I35andSlr];
+    marker.map = mapView_;
+    [waypoints_ addObject:marker];
+    positionString = [[NSString alloc] initWithFormat:@"%f,%f",
+                                I35andSlr.latitude,I35andSlr.longitude];
+    [waypointStrings_ addObject:positionString];
+    
+    marker = [GMSMarker markerWithPosition:home];
+    marker.map = mapView_;
+    [waypoints_ addObject:marker];
+    positionString = [[NSString alloc] initWithFormat:@"%f,%f",
+                                home.latitude,home.longitude];
+    [waypointStrings_ addObject:positionString];
+    
+    NSString *sensor = @"false";
+    NSArray *parameters = [NSArray arrayWithObjects:sensor, waypointStrings_, nil];
+    NSArray *keys = [NSArray arrayWithObjects:@"sensor", @"waypoints", nil];
+    NSDictionary *query = [NSDictionary dictionaryWithObjects:parameters
+                                                      forKeys:keys];
+    DirectionService *mds=[[DirectionService alloc] init];
+    SEL selector = @selector(addDirections:);
+    [mds setDirectionsQuery:query
+               withSelector:selector
+               withDelegate:self];
+}
 
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:
                 (CLLocationCoordinate2D)coordinate {
@@ -95,6 +134,17 @@
     GMSPath *path = [GMSPath pathFromEncodedPath:overview_route];
     GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
     polyline.map = mapView_;
+    
+    for ( int i = 0; i < waypoints_.count - 1; i ++ )
+    {
+        NSDictionary *legs = [routes objectForKey:@"legs"][i];
+        
+        NSDictionary *duration = [legs objectForKey:@"duration"];
+        NSString *duration_text = [duration objectForKey:@"text"];
+        UILabel *label =  [[UILabel alloc] initWithFrame: CGRectMake(0, 0+50*i, 200, 50)];
+        label.text = [NSString stringWithFormat:@"Duration: %@", duration_text];
+        [self.view addSubview:label];
+    }
 }
 
 - (void)viewDidLoad
@@ -106,6 +156,15 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+//- (IBAction)geocode:(id)sender {
+//    [addressField resignFirstResponder];
+//    SEL sel = @selector(addMarker);
+//    //[self performSelector:@selector(addMarker)];
+//
+//    NSLog(@"%@",NSStringFromSelector(sel));
+//    [gs geocodeAddress:addressField.text withCallback:@selector(addMarker) withDelegate:self];
+//}
 
 //- (void)addMarker{
 //    
